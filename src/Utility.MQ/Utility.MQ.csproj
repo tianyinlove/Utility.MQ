@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<Authors>Alex</Authors>
+		<Company>Alex</Company>
+		<Description>MQ接口客户端公共方法</Description>
+		<Version>5.3.13</Version>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="Emapp.Abstractions" Version="5.6.2" />
+		<PackageReference Include="Emapp.Extensions.Logging" Version="5.6.2" />
+		<PackageReference Include="Emapp.Configuration.Abstractions" Version="5.4.0" />
+		<PackageReference Include="Emapp.Utility" Version="5.6.2" />
+		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
+	</ItemGroup>
+</Project>

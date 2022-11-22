@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<RootNamespace>Utility.MQ</RootNamespace>
+		<LangVersion>latest</LangVersion>
+		<ServerGarbageCollection>false</ServerGarbageCollection>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Utility.MQ\Utility.MQ.csproj" />
+    <PackageReference Include="Emapp.Abstractions" Version="5.6.2" />
+    <PackageReference Include="Emapp.Configuration" Version="5.4.2" />
+    <PackageReference Include="Emapp.Extensions.Logging" Version="5.6.2" />
+    <PackageReference Include="Emapp.ApiAgent" Version="5.6.2" />
+    <PackageReference Include="Emapp.ApiHost" Version="5.6.2" />
+  <PackageReference Include="Emapp.Schedule" Version="5.2.4" />
+  <PackageReference Include="MongoDB.Bson" Version="2.18.0" />
+  <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<Content Update="Config\appsettings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+	</ItemGroup>
+
+</Project>
