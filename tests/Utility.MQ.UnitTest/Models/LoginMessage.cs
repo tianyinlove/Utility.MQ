@@ -1,8 +1,8 @@
-﻿using Emapp.Attributes;
+﻿using Utility.MQ.Attributes;
 
 namespace Utility.MQ.UnitTest.Models
 {
-    [EmappMQ(Emapp.Constants.AppId.Emapp, "mqtest.login")]
+    [RabbitMQ("Emapp", "mqtest.login")]
     class LoginMessage
     {
         public string UserName { get; set; }

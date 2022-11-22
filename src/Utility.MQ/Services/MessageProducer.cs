@@ -1,9 +1,8 @@
-﻿using Emapp.Attributes;
-using Emapp.Constants;
-using Utility.MQ.Services;
-using Emapp.Utility.Dependency;
+﻿using Utility.MQ.Services;
+using Utility.Dependency;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Utility.MQ.Attributes;
 
 namespace Utility.MQ
 {
@@ -23,15 +22,23 @@ namespace Utility.MQ
             _scopeFactory = scopeFactory;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="message"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public async Task PublishAsync<TMessage>(TMessage message, PublishOptions options = null)
         {
-            if (typeof(TMessage).GetCustomAttribute<EmappMQAttribute>() is not EmappMQAttribute keyAttribute
+            if (typeof(TMessage).GetCustomAttribute<RabbitMQAttribute>() is not RabbitMQAttribute keyAttribute
                 || string.IsNullOrWhiteSpace(keyAttribute.RouteKey))
             {
-                throw new ArgumentNullException($"无法识别RoutingKey，请通过{nameof(EmappMQAttribute)}标注");
+                throw new ArgumentNullException($"无法识别RoutingKey，请通过{nameof(RabbitMQAttribute)}标注");
             }
             var routingKey = keyAttribute.RouteKey;
-            AppId appId = keyAttribute.AppId;
+            string appId = keyAttribute.AppId;
 
             options ??= new();
             if (string.IsNullOrWhiteSpace(options.TraceId))

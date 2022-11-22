@@ -1,5 +1,4 @@
 ﻿//using Utility.MQ.UnitTest.DataAccess.EfTest;
-using Emapp.Extensions;
 using Utility.MQ.UnitTest.Workers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Utility.Extensions;
 
 namespace Utility.MQ.UnitTest
 {
@@ -22,10 +22,9 @@ namespace Utility.MQ.UnitTest
 
         private void ConfigServices(IServiceCollection services)
         {
-            services.AddEmappConfig();
-            services.AddEmappApiClient();
-            services.AddEmappMQConsumer();
-            services.AddEmappMQProducer();
+            services.Configure<RabbitMQConfig>(Configuration.GetSection(RabbitMQConfig.RabbitMQKey)); //自定义配置配置
+            services.AddMQConsumer();
+            services.AddMQProducer();
             services.AddHttpClient();
         }
 

@@ -1,9 +1,19 @@
-﻿using Emapp.Constants;
-
-namespace Utility.MQ.Services
+﻿namespace Utility.MQ.Services
 {
+    /// <summary>
+    /// 
+    /// </summary>
     interface IRawProducer
     {
-        Task PublishAsync<TMessage>(AppId appId, string routingKey, TMessage message, PublishOptions options);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="appId"></param>
+        /// <param name="routingKey"></param>
+        /// <param name="message"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        Task PublishAsync<TMessage>(string appId, string routingKey, TMessage message, PublishOptions options);
     }
 }

@@ -15,7 +15,7 @@ public class FailedMessageDocument
     /// <summary>
     /// 消息appid
     /// </summary>
-    public AppId AppId { get; set; }
+    public string AppId { get; set; }
 
     /// <summary>
     /// 消费队列名称

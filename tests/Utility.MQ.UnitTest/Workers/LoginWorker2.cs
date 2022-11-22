@@ -1,8 +1,5 @@
-﻿using Emapp.Attributes;
-using Emapp.Constants;
-using Utility.MQ.UnitTest.Models;
-using Emapp.Utility.Dependency;
-using Emapp.Utility.Json;
+﻿using Utility.MQ.UnitTest.Models;
+using Utility.Dependency;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -16,7 +13,7 @@ namespace Utility.MQ.UnitTest.Workers
 
         public override string ConsumerName => "emtest2";
 
-        public override AppId ConsumerAppId => AppId.Emapp;
+        public override string ConsumerAppId => "Emapp";
 
         public override Task<bool> ExecuteAsync(LoginMessage message, MessageContext context)
         {

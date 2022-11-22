@@ -1,9 +1,5 @@
-﻿using Emapp.Attributes;
-using Emapp.Configuration.Model;
-using Emapp.Constants;
-using Utility.MQ.Constants;
-using Emapp.Utility.Extensions;
-using Emapp.Utility.Json;
+﻿using Utility.MQ.Constants;
+using Utility.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,6 +8,8 @@ using RabbitMQ.Client.Events;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
+using Utility.MQ.Attributes;
+using Microsoft.Extensions.Options;
 
 namespace Utility.MQ;
 
@@ -24,7 +22,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<MessageConsumerService<TComsumer>> _logger;
-    private readonly IDictMonitor<string> _configAccessor;
+    private readonly RabbitMQConfig _configAccessor;
 
     /// <summary>
     /// 
@@ -49,7 +47,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
     /// <summary>
     /// 消费者应用id
     /// </summary>
-    private AppId ProducerAppId { get; set; }
+    private string ProducerAppId { get; set; }
 
     /// <summary>
     /// 消息路由
@@ -64,11 +62,11 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
     /// <summary>
     /// ioc
     /// </summary>
-    public MessageConsumerService(IServiceScopeFactory scopeFactory, ILogger<MessageConsumerService<TComsumer>> logger, IDictMonitor<string> configAccessor)
+    public MessageConsumerService(IServiceScopeFactory scopeFactory, ILogger<MessageConsumerService<TComsumer>> logger, IOptionsMonitor<RabbitMQConfig> optionsMonitor)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
-        _configAccessor = configAccessor;
+        _configAccessor = optionsMonitor.CurrentValue;
         ParseSettings();
     }
 
@@ -88,7 +86,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
             throw new ArgumentNullException($"{nameof(TComsumer)}未实现MessageConsumer<>");
         }
 
-        if (MessageType.GetCustomAttribute<EmappMQAttribute>() is EmappMQAttribute keyAttribute
+        if (MessageType.GetCustomAttribute<RabbitMQAttribute>() is RabbitMQAttribute keyAttribute
             && !string.IsNullOrWhiteSpace(keyAttribute.RouteKey))
         {
             RoutingKey = keyAttribute.RouteKey;
@@ -96,7 +94,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
         }
         else
         {
-            throw new ArgumentNullException("未标记EmappMQAttribute并设置routingkey");
+            throw new ArgumentNullException("未标记RabbitMQAttribute并设置routingkey");
         }
         using var scope = _scopeFactory.CreateScope();
         var settings = scope.ServiceProvider.GetRequiredService(ConsumerType) as IMessageConsumer;
@@ -125,7 +123,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
 
             try
             {
-                var factory = _configAccessor.Get(ConfigSections.RabbitMQ)[ProducerAppId.ToString()].FromJson<ConnectionFactory>();
+                var factory = _configAccessor.RabbitMQJson.FromJson<ConnectionFactory>();
                 using var connection = factory.CreateConnection();
                 using var channel = connection.CreateModel();
 
@@ -151,7 +149,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
                         channel.Close();
                         break;
                     }
-                    var cfg = _configAccessor.Get(ConfigSections.RabbitMQ)[ProducerAppId.ToString()].FromJson<ConnectionFactory>();
+                    var cfg = _configAccessor.RabbitMQJson.FromJson<ConnectionFactory>();
                     if (factory.HostName != cfg.HostName
                         || factory.Port != cfg.Port
                         || factory.UserName != cfg.UserName
@@ -194,7 +192,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
         {
             if (eventArgs.BasicProperties?.Headers != null)
             {
-                if (eventArgs.BasicProperties.Headers.TryGetValue(RequestKeys.Traceparent, out object oTraceId)
+                if (eventArgs.BasicProperties.Headers.TryGetValue(MessageHeaders.Traceparent, out object oTraceId)
                     && oTraceId is byte[] traceValue)
                 {
                     context.TraceId = Encoding.UTF8.GetString(traceValue);
@@ -284,7 +282,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
         messageProp.Persistent = true;
         messageProp.MessageId = context.MessageId;
         messageProp.Headers ??= new Dictionary<string, object>();
-        messageProp.Headers[RequestKeys.Traceparent] = context.TraceId;
+        messageProp.Headers[MessageHeaders.Traceparent] = context.TraceId;
         messageProp.Headers[MessageHeaders.FailCount] = context.FailCount;
         messageProp.Headers[MessageHeaders.PublishTime] = context.PublishTime.ValueOf();
         return messageProp;

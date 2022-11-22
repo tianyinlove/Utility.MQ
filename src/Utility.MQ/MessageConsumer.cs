@@ -1,7 +1,5 @@
-﻿using Emapp.Constants;
-using Emapp.Extensions.Logging;
-using Utility.MQ.Constants;
-using Emapp.Utility.Json;
+﻿using Utility.MQ.Constants;
+using Utility.Extensions;
 using Microsoft.Extensions.Logging;
 using System.Text;
 
@@ -20,7 +18,7 @@ namespace Utility.MQ
         /// <summary>
         /// 消费者应用id
         /// </summary>
-        public abstract AppId ConsumerAppId { get; }
+        public abstract string ConsumerAppId { get; }
 
         /// <summary>
         /// 

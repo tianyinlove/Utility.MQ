@@ -8,21 +8,26 @@
         /// <summary>
         /// 失败次数
         /// </summary>
-        public const string FailCount = "Emapp-FailCount";
+        public const string FailCount = "MQ-FailCount";
 
         /// <summary>
         /// 原始队列名
         /// </summary>
-        public const string QueueName = "Emapp-QueueName";
+        public const string QueueName = "MQ-QueueName";
 
         /// <summary>
         /// 发送时间
         /// </summary>
-        public const string PublishTime = "Emapp-PublishTime";
+        public const string PublishTime = "MQ-PublishTime";
 
         /// <summary>
         /// 延迟消息
         /// </summary>
-        public const string Delay = "Emapp-Delay";
+        public const string Delay = "MQ-Delay";
+
+        /// <summary>
+        /// 记录跟踪id，同一个请求过程中所有被调用的webapi接口具有相同的TraceId
+        /// </summary>
+        public const string Traceparent = "traceparent";
     }
 }

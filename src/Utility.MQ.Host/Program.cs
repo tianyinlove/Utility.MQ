@@ -1,4 +1,3 @@
-using Emapp.Extensions;
 using Utility.MQ.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -25,12 +24,11 @@ namespace Utility.MQ
             var builder = Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration(builder =>
                 {
-                    builder.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "appsettings.json"), optional: true, reloadOnChange: true)
-                        .AddEmappConfig();
+                    builder.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "appsettings.json"), optional: true, reloadOnChange: true);
                 })
                 .ConfigureLogging(builder =>
                 {
-                    builder.ClearProviders().AddEmappLog().SetMinimumLevel(LogLevel.Trace);
+                    builder.ClearProviders().SetMinimumLevel(LogLevel.Trace);
 #if DEBUG
                         builder.AddDebug();
 #endif

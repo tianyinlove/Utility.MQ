@@ -1,11 +1,13 @@
-﻿using Emapp.Constants;
-using Utility.MQ.Constants;
-using Emapp.Utility.Json;
+﻿using Utility.MQ.Constants;
 using RabbitMQ.Client;
 using System.Collections.Concurrent;
+using Utility.Extensions;
 
 namespace Utility.MQ.Internal
 {
+    /// <summary>
+    /// 
+    /// </summary>
     internal class RabbitConnectionPool
     {
         private readonly ConcurrentQueue<IModel> _connectionChannelPool = new();
@@ -19,6 +21,10 @@ namespace Utility.MQ.Internal
 
         private string ConfigJson { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private async Task DisposePoolAsync()
         {
             if (_connection != null)
@@ -29,6 +35,10 @@ namespace Utility.MQ.Internal
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private IModel GetChannel()
         {
             if (_connectionChannelPool.TryDequeue(out IModel channel))
@@ -56,6 +66,10 @@ namespace Utility.MQ.Internal
             return channel;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="channel"></param>
         internal void ReleaseChannel(IModel channel)
         {
             if (channel != null)
@@ -73,10 +87,16 @@ namespace Utility.MQ.Internal
 
         #region PoolManager
 
-        static readonly ConcurrentDictionary<AppId, RabbitConnectionPool> _appPoolMap = new();
+        static readonly ConcurrentDictionary<string, RabbitConnectionPool> _appPoolMap = new();
 
         private static object __poolLocker = new();
-        internal static RabbitConnectionPool GetPool(AppId appId, string configJson)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="configJson"></param>
+        /// <returns></returns>
+        internal static RabbitConnectionPool GetPool(string appId, string configJson)
         {
             if (!_appPoolMap.TryGetValue(appId, out RabbitConnectionPool pool) || pool.ConfigJson != configJson)
             {
@@ -99,7 +119,13 @@ namespace Utility.MQ.Internal
             return pool;
         }
 
-        public static RabbitChannelWrapper GetChannel(AppId appId, string configJson)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="configJson"></param>
+        /// <returns></returns>
+        public static RabbitChannelWrapper GetChannel(string appId, string configJson)
         {
             var pool = GetPool(appId, configJson);
             return new RabbitChannelWrapper

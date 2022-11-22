@@ -1,6 +1,3 @@
-using Emapp.Configuration.Model;
-using Emapp.Constants;
-using Emapp.Extensions;
 using Utility.MQ.Configuration;
 using Utility.MQ.Workers;
 using Microsoft.AspNetCore.Builder;
@@ -24,15 +21,8 @@ namespace Utility.MQ
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddEmappApi();
-            services.AddEmappApiClient();
-            services.AddEmappLog();
-            services.AddEmappJob();
-            services.AddEmappService();
-            services.AddEmappContext();
-            services.AddEmappConfig();
 
-            services.Configure<AppSettings>(Configuration.GetSection($"{ConfigSections.AppSettings}:MQ"));
+            services.Configure<RabbitMQConfig>(Configuration.GetSection(RabbitMQConfig.RabbitMQKey)); //◊‘∂®“Â≈‰÷√≈‰÷√
             services.AddHostedService<EmappFailedMessageLogService>();
             services.AddHostedService<ClassicFailedMessageLogService>();
             services.AddHostedService<EmappWrongMessageLogService>();
@@ -42,16 +32,10 @@ namespace Utility.MQ
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.EnsureEmappDependency();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                app.UseEmappException();
-            }
-            app.UseEmappApi();
         }
     }
 }

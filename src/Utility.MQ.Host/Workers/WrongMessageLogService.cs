@@ -1,10 +1,7 @@
-﻿using Emapp.Configuration.Model;
-using Emapp.Constants;
-using Utility.MQ.Constants;
+﻿using Utility.MQ.Constants;
 using Utility.MQ.Documents;
 using Utility.MQ.Repositories;
-using Emapp.Utility.Extensions;
-using Emapp.Utility.Json;
+using Utility.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,25 +12,26 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace Utility.MQ.Workers;
 
 public class EmappWrongMessageLogService : WrongMessageLogService
 {
-    public EmappWrongMessageLogService(IServiceScopeFactory scopeFactory) : base(scopeFactory)
+    public EmappWrongMessageLogService(IServiceScopeFactory scopeFactory, IOptionsMonitor<RabbitMQConfig> optionsMonitor) : base(scopeFactory, optionsMonitor)
     {
     }
 
-    public override AppId AppId => AppId.Emapp;
+    public override string AppId => "Emapp";
 }
 
 public class ClassicWrongMessageLogService : WrongMessageLogService
 {
-    public ClassicWrongMessageLogService(IServiceScopeFactory scopeFactory) : base(scopeFactory)
+    public ClassicWrongMessageLogService(IServiceScopeFactory scopeFactory, IOptionsMonitor<RabbitMQConfig> optionsMonitor) : base(scopeFactory, optionsMonitor)
     {
     }
 
-    public override AppId AppId => AppId.Classic;
+    public override string AppId => "Classic";
 }
 
 /// <summary>
@@ -43,19 +41,20 @@ public abstract class WrongMessageLogService : BackgroundService
 {
     private ILogger<WrongMessageLogService> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly RabbitMQConfig _config;
 
-    public abstract AppId AppId { get; }
+    public abstract string AppId { get; }
 
-    public WrongMessageLogService(IServiceScopeFactory scopeFactory)
+    public WrongMessageLogService(IServiceScopeFactory scopeFactory, IOptionsMonitor<RabbitMQConfig> optionsMonitor)
     {
         _scopeFactory = scopeFactory;
+        _config = optionsMonitor.CurrentValue;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await Task.Yield();
         using var scope = _scopeFactory.CreateScope();
-        var configAccessor = scope.ServiceProvider.GetRequiredService<IDictMonitor<string>>();
         _logger = scope.ServiceProvider.GetRequiredService<ILogger<WrongMessageLogService>>();
         var mongo = scope.ServiceProvider.GetRequiredService<IMQMongoDbContext>();
         mongo.Migrate();
@@ -66,7 +65,7 @@ public abstract class WrongMessageLogService : BackgroundService
 
             try
             {
-                var factory = configAccessor.Get(ConfigSections.RabbitMQ)[AppId.ToString()].FromJson<ConnectionFactory>();
+                var factory = _config.RabbitMQJson.FromJson<ConnectionFactory>();
                 using var connection = factory.CreateConnection();
                 using var channel = connection.CreateModel();
 
@@ -91,7 +90,7 @@ public abstract class WrongMessageLogService : BackgroundService
                         channel.Close();
                         break;
                     }
-                    var cfg = configAccessor.Get(ConfigSections.RabbitMQ)[AppId.ToString()].FromJson<ConnectionFactory>();
+                    var cfg = _config.RabbitMQJson.FromJson<ConnectionFactory>();
                     if (factory.HostName != cfg.HostName
                         || factory.Port != cfg.Port
                         || factory.UserName != cfg.UserName
@@ -130,12 +129,12 @@ public abstract class WrongMessageLogService : BackgroundService
             Id = eventArgs.BasicProperties.MessageId,
             Body = Encoding.UTF8.GetString(eventArgs.Body.ToArray()),
             AppId = AppId,
-            LogTime = DateTime.Now,            
+            LogTime = DateTime.Now,
         };
 
         if (eventArgs.BasicProperties.Headers != null)
         {
-            if (eventArgs.BasicProperties.Headers.TryGetValue(RequestKeys.Traceparent, out object oTraceId)
+            if (eventArgs.BasicProperties.Headers.TryGetValue(MessageHeaders.Traceparent, out object oTraceId)
                 && oTraceId is byte[] traceValue)
             {
                 doc.TraceId = Encoding.UTF8.GetString(traceValue);

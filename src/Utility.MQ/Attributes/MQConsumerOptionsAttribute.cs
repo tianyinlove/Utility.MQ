@@ -1,4 +1,4 @@
-﻿namespace Emapp.Attributes
+﻿namespace Utility.MQ.Attributes
 {
     /// <summary>
     /// 设置mq消费者

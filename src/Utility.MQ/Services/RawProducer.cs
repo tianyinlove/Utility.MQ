@@ -1,26 +1,27 @@
-﻿using Emapp.Configuration.Model;
-using Emapp.Constants;
-using Utility.MQ.Constants;
+﻿using Utility.MQ.Constants;
 using Utility.MQ.Internal;
-using Emapp.Utility.Extensions;
-using Emapp.Utility.Json;
+using Utility.Extensions;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace Utility.MQ.Services
 {
+    /// <summary>
+    /// 
+    /// </summary>
     class RawProducer : IRawProducer
     {
-        private readonly IDictMonitor<string> _configAccessor;
+        private readonly RabbitMQConfig _config;
         private readonly ILogger<RawProducer> _logger;
 
         /// <summary>
         /// ioc
         /// </summary>
-        public RawProducer(IDictMonitor<string> configAccessor, ILogger<RawProducer> logger)
+        public RawProducer(IOptionsMonitor<RabbitMQConfig> optionsMonitor, ILogger<RawProducer> logger)
         {
-            _configAccessor = configAccessor;
+            _config = optionsMonitor.CurrentValue;
             _logger = logger;
         }
 
@@ -28,25 +29,22 @@ namespace Utility.MQ.Services
         /// 
         /// </summary>
         /// <returns></returns>
-        public async Task PublishAsync<TMessage>(AppId appId, string routingKey, TMessage message, PublishOptions options)
+        public async Task PublishAsync<TMessage>(string appId, string routingKey, TMessage message, PublishOptions options)
         {
             await Task.Yield();
             var messageId = Guid.NewGuid().ToString("n");
             for (int tryCount = 1; tryCount <= options.MaxRetryCount; tryCount++)
             {
-                var configName = appId.ToString();
-                var configJson = _configAccessor.Get(ConfigSections.RabbitMQ)[configName];
-                
                 try
                 {
-                    using var channelWrapper = RabbitConnectionPool.GetChannel(appId, configJson);
+                    using var channelWrapper = RabbitConnectionPool.GetChannel(appId, _config.RabbitMQJson);
                     if (channelWrapper?.Channel != null)
                     {
                         var properties = channelWrapper.Channel.CreateBasicProperties();
                         properties.Persistent = true;
                         properties.MessageId = messageId;
                         properties.Headers ??= new Dictionary<string, object>();
-                        properties.Headers[RequestKeys.Traceparent] = options.TraceId;
+                        properties.Headers[MessageHeaders.Traceparent] = options.TraceId;
                         properties.Headers[MessageHeaders.PublishTime] = DateTime.Now.ValueOf();
                         var json = message.ToApiJson();
                         var body = Encoding.UTF8.GetBytes(json);

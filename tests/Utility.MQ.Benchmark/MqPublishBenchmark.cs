@@ -1,8 +1,9 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Emapp.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Utility.MQ.Benchmark
@@ -18,12 +19,13 @@ namespace Utility.MQ.Benchmark
         {
             //配置
             var configuration = new ConfigurationBuilder()
-                            .AddEmappConfig()
-                            .Build();
+                .SetBasePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config"))
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .Build();
+
             var services = new ServiceCollection();
-            services.AddEmappService();
+            services.Configure<RabbitMQConfig>(configuration.GetSection(RabbitMQConfig.RabbitMQKey)); //自定义配置配置
             services.AddHttpClient();
-            services.AddEmappConfig();
             _serviceProvider = services.BuildServiceProvider();
         }
 
