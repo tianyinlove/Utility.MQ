@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Utility.Extensions;
 
 namespace Utility.MQ
 {
@@ -21,8 +22,8 @@ namespace Utility.MQ
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-
-            services.Configure<RabbitMQConfig>(Configuration.GetSection(RabbitMQConfig.RabbitMQKey)); //自定义配置配置
+            services.AddMQService();
+            services.Configure<RabbitMQConfig>(Configuration); //自定义配置配置
             services.AddHostedService<EmappFailedMessageLogService>();
             services.AddHostedService<ClassicFailedMessageLogService>();
             services.AddHostedService<EmappWrongMessageLogService>();

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Utility.Extensions;
 
 namespace Utility.MQ.Benchmark
 {
@@ -24,7 +25,8 @@ namespace Utility.MQ.Benchmark
                 .Build();
 
             var services = new ServiceCollection();
-            services.Configure<RabbitMQConfig>(configuration.GetSection(RabbitMQConfig.RabbitMQKey)); //自定义配置配置
+            services.Configure<RabbitMQConfig>(configuration); //自定义配置配置
+            services.AddMQService();
             services.AddHttpClient();
             _serviceProvider = services.BuildServiceProvider();
         }

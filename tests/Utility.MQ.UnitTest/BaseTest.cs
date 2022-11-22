@@ -22,9 +22,8 @@ namespace Utility.MQ.UnitTest
 
         private void ConfigServices(IServiceCollection services)
         {
-            services.Configure<RabbitMQConfig>(Configuration.GetSection(RabbitMQConfig.RabbitMQKey)); //自定义配置配置
-            services.AddMQConsumer();
-            services.AddMQProducer();
+            services.Configure<RabbitMQConfig>(Configuration); //自定义配置配置
+            services.AddMQService();
             services.AddHttpClient();
         }
 

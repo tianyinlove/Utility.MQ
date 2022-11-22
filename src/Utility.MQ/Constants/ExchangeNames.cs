@@ -8,11 +8,11 @@
         /// <summary>
         /// 主交换机
         /// </summary>
-        public const string MainExchange = "emapp_main";
+        public const string MainExchange = "mq_main";
 
         /// <summary>
         /// 延迟交换机 dlx
         /// </summary>
-        public const string DelayExchange = "emapp_delay";
+        public const string DelayExchange = "mq_delay";
     }
 }

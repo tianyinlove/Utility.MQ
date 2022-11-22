@@ -8,15 +8,15 @@ public static class QueueNames
     /// <summary>
     /// 重试队列
     /// </summary>
-    public const string RetryQueue = "emapp_delay";
+    public const string RetryQueue = "mq_delay";
 
     /// <summary>
     /// 失败的队列
     /// </summary>
-    public const string FailedQueue = "emapp_failed";
+    public const string FailedQueue = "mq_failed";
 
     /// <summary>
     /// 失败的队列
     /// </summary>
-    public const string WrongQueue = "emapp_wrong";
+    public const string WrongQueue = "mq_wrong";
 }

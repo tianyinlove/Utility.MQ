@@ -21,7 +21,7 @@ namespace Utility.Extensions
         /// <param name="services"></param>
         /// <param name="hostConsumers">是否自动查询MQConsumerService并注册HostedService</param>
         /// <returns></returns>
-        public static IServiceCollection AddMQ(this IServiceCollection services, bool hostConsumers = true)
+        public static IServiceCollection AddMQService(this IServiceCollection services, bool hostConsumers = true)
         {
             return services.AddMQProducer().AddMQConsumer(hostConsumers);
         }
@@ -48,7 +48,6 @@ namespace Utility.Extensions
             if (hostConsumers)
             {
                 TryAddMQHostedServices(services);
-
             }
             return services;
         }
@@ -59,10 +58,7 @@ namespace Utility.Extensions
         /// <param name="services"></param>
         private static void TryAddMQHostedServices(IServiceCollection services)
         {
-            var libraries = DependencyContext.Default.RuntimeLibraries
-                                .Select(library => Assembly.Load(new AssemblyName(library.Name)))
-                                .ToList();
-
+            var libraries = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in libraries)
             {
                 Type[] types;
@@ -76,7 +72,7 @@ namespace Utility.Extensions
                 }
                 foreach (var type in types)
                 {
-                    if (type != null && type.IsClass && !type.IsAbstract && type.BaseType.IsGenericType)
+                    if (type != null && type.IsClass && !type.IsAbstract && type.BaseType != null && type.BaseType.IsGenericType)
                     {
                         if (type.BaseType.GetGenericTypeDefinition() == typeof(MessageConsumer<>))
                         {
