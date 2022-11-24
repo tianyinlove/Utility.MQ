@@ -1,55 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <IsPackable>false</IsPackable>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <Compile Remove="DataAccess\EfTest\**" />
-        <EmbeddedResource Remove="DataAccess\EfTest\**" />
-        <None Remove="DataAccess\EfTest\**" />
-    </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="DataAccess\EfTest\**" />
+		<EmbeddedResource Remove="DataAccess\EfTest\**" />
+		<None Remove="DataAccess\EfTest\**" />
+	</ItemGroup>
 
 
-    <ItemGroup>
-        <Compile Remove="DataAccess\TestEfGuidKeyRepository.cs" />
-        <Compile Remove="DataAccess\TestEfIntKeyRepository.cs" />
-        <Compile Remove="DataAccess\Todo.cs" />
-    </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="DataAccess\TestEfGuidKeyRepository.cs" />
+		<Compile Remove="DataAccess\TestEfIntKeyRepository.cs" />
+		<Compile Remove="DataAccess\Todo.cs" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <None Remove="Config\appsettings.json" />
-    </ItemGroup>
+	<ItemGroup>
+		<None Remove="Config\appsettings.json" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <Content Include="Config\appsettings.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        </Content>
-    </ItemGroup>
+	<ItemGroup>
+		<Content Include="Config\appsettings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+	</ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
-        <PackageReference Include="xunit" Version="2.4.2" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
-        <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Utility.RabbitMQ" Version="1.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+		<PackageReference Include="xunit" Version="2.4.2" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+		<DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="DataAccess\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\..\src\Utility.RabbitMQ\Utility.RabbitMQ.csproj" />
-    </ItemGroup>
-
+	<ItemGroup>
+		<Folder Include="DataAccess\" />
+	</ItemGroup>
 </Project>

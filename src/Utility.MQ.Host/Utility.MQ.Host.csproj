@@ -7,15 +7,12 @@
 		<ServerGarbageCollection>false</ServerGarbageCollection>
 	</PropertyGroup>
 
-  <ItemGroup>
-  <PackageReference Include="Emapp.Schedule" Version="5.2.4" />
-  <PackageReference Include="MongoDB.Bson" Version="2.18.0" />
-  <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Utility.RabbitMQ\Utility.RabbitMQ.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Emapp.Schedule" Version="5.2.4" />
+		<PackageReference Include="Utility.RabbitMQ" Version="1.0.0" />
+		<PackageReference Include="MongoDB.Bson" Version="2.18.0" />
+		<PackageReference Include="MongoDB.Driver" Version="2.18.0" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Content Update="Config\appsettings.json">

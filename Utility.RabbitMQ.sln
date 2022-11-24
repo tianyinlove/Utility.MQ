@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility.MQ.UnitTest", "test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility.RabbitMQ", "src\Utility.RabbitMQ\Utility.RabbitMQ.csproj", "{640F8503-C7D1-450C-A1F2-8BE94C0B7128}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MQTest.HostWeb", "MQTest.HostWeb\MQTest.HostWeb.csproj", "{6834C7CC-BFE3-43BB-AC04-20D7AF91BF5C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MQTest.HostWeb", "tests\MQTest.HostWeb\MQTest.HostWeb.csproj", "{6834C7CC-BFE3-43BB-AC04-20D7AF91BF5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
