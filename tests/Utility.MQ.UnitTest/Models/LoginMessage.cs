@@ -1,6 +1,6 @@
-﻿using Utility.MQ.Attributes;
+﻿using Utility.RabbitMQ.Attributes;
 
-namespace Utility.MQ.UnitTest.Models
+namespace Utility.RabbitMQ.UnitTest.Models
 {
     [RabbitMQ("Emapp", "mqtest.login")]
     class LoginMessage

@@ -1,5 +1,5 @@
-using Utility.MQ.Configuration;
-using Utility.MQ.Workers;
+using Utility.RabbitMQ.Configuration;
+using Utility.RabbitMQ.Workers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Utility.Extensions;
 
-namespace Utility.MQ
+namespace Utility.RabbitMQ
 {
     public class Startup
     {
@@ -22,7 +22,7 @@ namespace Utility.MQ
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddMQService();
+            services.AddMQOperateCache();
             services.Configure<RabbitMQConfig>(Configuration); //◊‘∂®“Â≈‰÷√≈‰÷√
             services.AddHostedService<EmappFailedMessageLogService>();
             services.AddHostedService<ClassicFailedMessageLogService>();

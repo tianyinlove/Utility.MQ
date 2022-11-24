@@ -2,16 +2,19 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<RootNamespace>Utility.MQ</RootNamespace>
+		<RootNamespace>Utility.RabbitMQ</RootNamespace>
 		<LangVersion>latest</LangVersion>
 		<ServerGarbageCollection>false</ServerGarbageCollection>
 	</PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Utility.MQ\Utility.MQ.csproj" />
   <PackageReference Include="Emapp.Schedule" Version="5.2.4" />
   <PackageReference Include="MongoDB.Bson" Version="2.18.0" />
   <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Utility.RabbitMQ\Utility.RabbitMQ.csproj" />
   </ItemGroup>
 
 	<ItemGroup>

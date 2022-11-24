@@ -1,6 +1,6 @@
 ﻿using MongoDB.Driver;
 
-namespace Utility.MQ.Configuration;
+namespace Utility.RabbitMQ.Configuration;
 
 /// <summary>
 /// 应用配置

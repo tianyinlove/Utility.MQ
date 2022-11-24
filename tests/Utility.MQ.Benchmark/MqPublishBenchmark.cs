@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Utility.Extensions;
+using Utility.RabbitMQ.Cache;
 
-namespace Utility.MQ.Benchmark
+namespace Utility.RabbitMQ.Benchmark
 {
     [SimpleJob(targetCount: 10, warmupCount: 1, invocationCount: 1000)]
     public class MqPublishBenchmark
@@ -26,9 +27,17 @@ namespace Utility.MQ.Benchmark
 
             var services = new ServiceCollection();
             services.Configure<RabbitMQConfig>(configuration); //自定义配置配置
-            services.AddMQService();
+            services.AddMQOperateCache();
+            services.AddMemoryCache();
             services.AddHttpClient();
             _serviceProvider = services.BuildServiceProvider();
+        }
+
+        [Benchmark]
+        public async Task SingleDelCache()
+        {
+            var agent = _serviceProvider.GetService<IMessageProducer>();
+            await agent.PublishAsync(new MQOperateCacheMessage { Keys = new string[] { "appcache:auth:uuidauth" } });
         }
 
         [Benchmark]

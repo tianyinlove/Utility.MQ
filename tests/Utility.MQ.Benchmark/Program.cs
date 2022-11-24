@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Running;
 using System;
 
-namespace Utility.MQ.Benchmark
+namespace Utility.RabbitMQ.Benchmark
 {
     class Program
     {

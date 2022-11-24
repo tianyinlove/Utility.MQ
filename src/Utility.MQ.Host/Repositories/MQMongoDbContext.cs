@@ -1,10 +1,10 @@
-﻿using Utility.MQ.Configuration;
-using Utility.MQ.Documents;
+﻿using Utility.RabbitMQ.Configuration;
+using Utility.RabbitMQ.Documents;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System.Linq;
 
-namespace Utility.MQ.Repositories;
+namespace Utility.RabbitMQ.Repositories;
 
 public class MQMongoDbContext : IMQMongoDbContext
 {

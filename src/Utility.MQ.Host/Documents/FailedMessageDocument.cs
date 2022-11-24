@@ -2,7 +2,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 
-namespace Utility.MQ.Documents;
+namespace Utility.RabbitMQ.Documents;
 
 [BsonIgnoreExtraElements]
 public class FailedMessageDocument

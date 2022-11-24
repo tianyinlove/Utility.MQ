@@ -1,4 +1,4 @@
-using Utility.MQ.Repositories;
+using Utility.RabbitMQ.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 
-namespace Utility.MQ
+namespace Utility.RabbitMQ
 {
     public class Program
     {

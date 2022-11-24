@@ -1,9 +1,9 @@
-﻿using Utility.MQ.UnitTest.Models;
+﻿using Utility.RabbitMQ.UnitTest.Models;
 using Utility.Dependency;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Utility.MQ.UnitTest.Workers
+namespace Utility.RabbitMQ.UnitTest.Workers
 {
     class LoginWorker2 : MessageConsumer<LoginMessage>
     {

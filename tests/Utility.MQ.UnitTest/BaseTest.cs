@@ -1,5 +1,5 @@
-﻿//using Utility.MQ.UnitTest.DataAccess.EfTest;
-using Utility.MQ.UnitTest.Workers;
+﻿//using Utility.RabbitMQ.UnitTest.DataAccess.EfTest;
+using Utility.RabbitMQ.UnitTest.Workers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,7 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Utility.Extensions;
 
-namespace Utility.MQ.UnitTest
+namespace Utility.RabbitMQ.UnitTest
 {
     /// <summary>
     /// 测试公共方法
@@ -23,7 +23,8 @@ namespace Utility.MQ.UnitTest
         private void ConfigServices(IServiceCollection services)
         {
             services.Configure<RabbitMQConfig>(Configuration); //自定义配置配置
-            services.AddMQService();
+            services.AddMQOperateCache();
+            services.AddMemoryCache();
             services.AddHttpClient();
         }
 

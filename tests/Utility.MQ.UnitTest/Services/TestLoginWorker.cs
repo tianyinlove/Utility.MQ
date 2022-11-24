@@ -1,10 +1,12 @@
-﻿using Utility.MQ.UnitTest.Models;
+﻿using Utility.RabbitMQ.UnitTest.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using System;
+using Utility.RabbitMQ.Cache;
 
-namespace Utility.MQ.UnitTest.Services
+namespace Utility.RabbitMQ.UnitTest.Services
 {
     /// <summary>
     /// 测试消费者
@@ -29,6 +31,18 @@ namespace Utility.MQ.UnitTest.Services
 
             await Task.Delay(5000000);
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task SingleDelCache()
+        {
+            var host = await StartHostAsync();
+            var agent = host.Services.GetRequiredService<IMessageProducer>();
+            await agent.PublishAsync(new MQOperateCacheMessage { Keys = new string[] { "appcache:auth:uuidauth" } });
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Emapp.Attributes;
 
-namespace Utility.MQ.Jobs
+namespace Utility.RabbitMQ.Jobs
 {
     /// <summary>
     /// mq数据维护

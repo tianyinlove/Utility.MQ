@@ -1,6 +1,6 @@
-﻿using Utility.MQ.Constants;
-using Utility.MQ.Documents;
-using Utility.MQ.Repositories;
+﻿using Utility.RabbitMQ.Constants;
+using Utility.RabbitMQ.Documents;
+using Utility.RabbitMQ.Repositories;
 using Utility.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,7 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 
-namespace Utility.MQ.Workers;
+namespace Utility.RabbitMQ.Workers;
 
 public class EmappWrongMessageLogService : WrongMessageLogService
 {

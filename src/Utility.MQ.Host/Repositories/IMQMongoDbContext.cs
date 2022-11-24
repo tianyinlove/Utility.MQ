@@ -1,7 +1,7 @@
-﻿using Utility.MQ.Documents;
+﻿using Utility.RabbitMQ.Documents;
 using MongoDB.Driver;
 
-namespace Utility.MQ.Repositories;
+namespace Utility.RabbitMQ.Repositories;
 
 public interface IMQMongoDbContext
 {

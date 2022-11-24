@@ -1,7 +1,7 @@
 ﻿
-using Utility.MQ.Attributes;
+using Utility.RabbitMQ.Attributes;
 
-namespace Utility.MQ.Benchmark
+namespace Utility.RabbitMQ.Benchmark
 {
     [RabbitMQ("Emapp", "mqtest.login")]
     class LoginData

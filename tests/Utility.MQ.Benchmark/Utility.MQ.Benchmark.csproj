@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Utility.MQ\Utility.MQ.csproj" />
+	  <ProjectReference Include="..\..\src\Utility.RabbitMQ\Utility.RabbitMQ.csproj" />
   </ItemGroup>
 
 </Project>
