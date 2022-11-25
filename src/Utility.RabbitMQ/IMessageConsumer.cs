@@ -9,6 +9,11 @@ namespace Utility.RabbitMQ
     public interface IMessageConsumer
     {
         /// <summary>
+        /// MQ配置，Json格式
+        /// </summary>
+        string RabbitMQConfig { get; }
+
+        /// <summary>
         /// 队列重试次数
         /// </summary>
         int MaxRetry { get; }

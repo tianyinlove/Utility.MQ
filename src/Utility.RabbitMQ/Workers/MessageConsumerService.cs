@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using Utility.RabbitMQ.Attributes;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace Utility.RabbitMQ;
 
@@ -22,7 +23,11 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<MessageConsumerService<TComsumer>> _logger;
-    private readonly RabbitMQConfig _configAccessor;
+
+    /// <summary>
+    /// MQ配置，Json格式
+    /// </summary>
+    public string RabbitMQConfig { get; set; }
 
     /// <summary>
     /// 
@@ -62,11 +67,10 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
     /// <summary>
     /// ioc
     /// </summary>
-    public MessageConsumerService(IServiceScopeFactory scopeFactory, ILogger<MessageConsumerService<TComsumer>> logger, IOptionsMonitor<RabbitMQConfig> optionsMonitor)
+    public MessageConsumerService(IServiceScopeFactory scopeFactory, ILogger<MessageConsumerService<TComsumer>> logger)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
-        _configAccessor = optionsMonitor.CurrentValue;
         ParseSettings();
     }
 
@@ -99,6 +103,22 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var settings = scope.ServiceProvider.GetRequiredService(ConsumerType) as IMessageConsumer;
 
+        RabbitMQConfig = settings.RabbitMQConfig;
+
+        if (string.IsNullOrEmpty(RabbitMQConfig))
+        {
+            if (string.IsNullOrEmpty(keyAttribute.ConfigName))
+            {
+                throw new ArgumentNullException($"无法识别MQ名，请通过{nameof(RabbitMQAttribute)}标注或赋值RabbitMQConfig");
+            }
+            var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            RabbitMQConfig = configuration.GetSection(keyAttribute.ConfigName).Value;
+            if (string.IsNullOrEmpty(RabbitMQConfig))
+            {
+                throw new ArgumentNullException($"{keyAttribute.ConfigName}未配置，请配置appsettings.json或赋值RabbitMQConfig");
+            }
+        }
+
         QueueName = settings.ConsumerAppId == ProducerAppId
             ? $"{settings.ConsumerName}.{RoutingKey}"
             : $"{settings.ConsumerAppId.ToString().ToLower()}.{settings.ConsumerName}.{RoutingKey}";
@@ -123,7 +143,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
 
             try
             {
-                var factory = _configAccessor.RabbitMQJson.FromJson<ConnectionFactory>();
+                var factory = RabbitMQConfig.FromJson<ConnectionFactory>();
                 using var connection = factory.CreateConnection();
                 using var channel = connection.CreateModel();
 
@@ -149,7 +169,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
                         channel.Close();
                         break;
                     }
-                    var cfg = _configAccessor.RabbitMQJson.FromJson<ConnectionFactory>();
+                    var cfg = RabbitMQConfig.FromJson<ConnectionFactory>();
                     if (factory.HostName != cfg.HostName
                         || factory.Port != cfg.Port
                         || factory.UserName != cfg.UserName

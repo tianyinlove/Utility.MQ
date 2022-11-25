@@ -8,7 +8,7 @@ namespace Utility.RabbitMQ.Cache
     /// <summary>
     /// 缓存操作消息
     /// </summary>
-    [RabbitMQ("MQCahceOperate", "cache.operate")]
+    [RabbitMQ("MQCahceOperate", "cache.operate", "CacheRabbitMQConfig")]
     public class MQOperateCacheMessage
     {
         /// <summary>

@@ -22,20 +22,6 @@ namespace Utility.Extensions
         /// <param name="services"></param>
         /// <param name="hostConsumers">是否自动查询MQConsumerService并注册HostedService</param>
         /// <returns></returns>
-        public static IServiceCollection AddMQOperateCache(this IServiceCollection services, bool hostConsumers = true)
-        {
-            services.AddMQService(hostConsumers);
-
-            services.TryAddSingleton<IMQOperateCacheProducer, MQOperateCacheProducer>();
-            return services;
-        }
-
-        /// <summary>
-        /// 添加MQ服务客户端
-        /// </summary>
-        /// <param name="services"></param>
-        /// <param name="hostConsumers">是否自动查询MQConsumerService并注册HostedService</param>
-        /// <returns></returns>
         public static IServiceCollection AddMQService(this IServiceCollection services, bool hostConsumers = true)
         {
             return services.AddMQProducer().AddMQConsumer(hostConsumers);

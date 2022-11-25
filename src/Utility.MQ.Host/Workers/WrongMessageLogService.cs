@@ -13,12 +13,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Utility.RabbitMQ.Configuration;
 
 namespace Utility.RabbitMQ.Workers;
 
 public class EmappWrongMessageLogService : WrongMessageLogService
 {
-    public EmappWrongMessageLogService(IServiceScopeFactory scopeFactory, IOptionsMonitor<RabbitMQConfig> optionsMonitor) : base(scopeFactory, optionsMonitor)
+    public EmappWrongMessageLogService(IServiceScopeFactory scopeFactory, IOptionsMonitor<AppSettings> optionsMonitor) : base(scopeFactory, optionsMonitor)
     {
     }
 
@@ -27,7 +28,7 @@ public class EmappWrongMessageLogService : WrongMessageLogService
 
 public class ClassicWrongMessageLogService : WrongMessageLogService
 {
-    public ClassicWrongMessageLogService(IServiceScopeFactory scopeFactory, IOptionsMonitor<RabbitMQConfig> optionsMonitor) : base(scopeFactory, optionsMonitor)
+    public ClassicWrongMessageLogService(IServiceScopeFactory scopeFactory, IOptionsMonitor<AppSettings> optionsMonitor) : base(scopeFactory, optionsMonitor)
     {
     }
 
@@ -41,11 +42,11 @@ public abstract class WrongMessageLogService : BackgroundService
 {
     private ILogger<WrongMessageLogService> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly RabbitMQConfig _config;
+    private readonly AppSettings _config;
 
     public abstract string AppId { get; }
 
-    public WrongMessageLogService(IServiceScopeFactory scopeFactory, IOptionsMonitor<RabbitMQConfig> optionsMonitor)
+    public WrongMessageLogService(IServiceScopeFactory scopeFactory, IOptionsMonitor<AppSettings> optionsMonitor)
     {
         _scopeFactory = scopeFactory;
         _config = optionsMonitor.CurrentValue;
@@ -65,7 +66,7 @@ public abstract class WrongMessageLogService : BackgroundService
 
             try
             {
-                var factory = _config.RabbitMQJson.FromJson<ConnectionFactory>();
+                var factory = _config.RabbitMQConfig.FromJson<ConnectionFactory>();
                 using var connection = factory.CreateConnection();
                 using var channel = connection.CreateModel();
 
@@ -90,7 +91,7 @@ public abstract class WrongMessageLogService : BackgroundService
                         channel.Close();
                         break;
                     }
-                    var cfg = _config.RabbitMQJson.FromJson<ConnectionFactory>();
+                    var cfg = _config.RabbitMQConfig.FromJson<ConnectionFactory>();
                     if (factory.HostName != cfg.HostName
                         || factory.Port != cfg.Port
                         || factory.UserName != cfg.UserName

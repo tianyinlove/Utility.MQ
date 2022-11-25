@@ -6,6 +6,11 @@
     public interface IMessageProducer
     {
         /// <summary>
+        /// 
+        /// </summary>
+        string RabbitMQConfig { get; set; }
+
+        /// <summary>
         /// 发布消息,类型T必须标记EmappMQAttribute
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>

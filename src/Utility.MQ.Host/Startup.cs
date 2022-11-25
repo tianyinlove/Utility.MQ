@@ -22,8 +22,8 @@ namespace Utility.RabbitMQ
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddMQOperateCache();
-            services.Configure<RabbitMQConfig>(Configuration); //自定义配置配置
+            services.AddMQService();
+            services.Configure<AppSettings>(Configuration); //自定义配置配置
             services.AddHostedService<EmappFailedMessageLogService>();
             services.AddHostedService<ClassicFailedMessageLogService>();
             services.AddHostedService<EmappWrongMessageLogService>();

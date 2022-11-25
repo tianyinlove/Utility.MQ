@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Utility.RabbitMQ
+﻿namespace Utility.MQ.UnitTest
 {
     /// <summary>
-    /// 
+    /// 应用配置
     /// </summary>
-    public class RabbitMQConfig
+    public class AppSettings
     {
         /// <summary>
         /// 
@@ -17,7 +13,6 @@ namespace Utility.RabbitMQ
         /// <summary>
         /// 
         /// </summary>
-        public string RabbitMQJson { get; set; }
-
+        public string RabbitMQConfigJson { get; set; }
     }
 }

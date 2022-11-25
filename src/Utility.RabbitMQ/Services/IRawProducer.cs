@@ -8,6 +8,11 @@
         /// <summary>
         /// 
         /// </summary>
+        string RabbitMQConfig { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="appId"></param>
         /// <param name="routingKey"></param>

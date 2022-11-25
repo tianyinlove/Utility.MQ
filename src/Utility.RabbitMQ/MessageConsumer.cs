@@ -11,6 +11,11 @@ namespace Utility.RabbitMQ
     public abstract class MessageConsumer<TMessage> : IMessageConsumer
     {
         /// <summary>
+        /// MQ配置，Json格式
+        /// </summary>
+        public virtual string RabbitMQConfig { get; }
+
+        /// <summary>
         /// 消费模块名
         /// </summary>
         public abstract string ConsumerName { get; }

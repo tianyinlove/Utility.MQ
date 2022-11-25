@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Utility.Core.Common;
 using Utility.RabbitMQ.Cache;
 
 namespace Utility.RabbitMQ.UnitTest.Workers
@@ -15,13 +17,15 @@ namespace Utility.RabbitMQ.UnitTest.Workers
     class MQOperateCacheConsumer : MessageConsumer<MQOperateCacheMessage>
     {
         private readonly IMemoryCache memoryCache;
+        private readonly AppSettings config;
 
         /// <summary>
         /// 
         /// </summary>
-        public MQOperateCacheConsumer(IMemoryCache memoryCache)
+        public MQOperateCacheConsumer(IMemoryCache memoryCache, IOptionsMonitor<AppSettings> optionsMonitor)
         {
             this.memoryCache = memoryCache;
+            config = optionsMonitor.CurrentValue;
         }
 
         /// <summary>
@@ -32,6 +36,11 @@ namespace Utility.RabbitMQ.UnitTest.Workers
         /// 
         /// </summary>
         public override string ConsumerAppId => "Emapp";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public override string RabbitMQConfig => config.CacheRabbitMQConfig;
 
         /// <summary>
         /// 

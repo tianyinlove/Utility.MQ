@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,13 +19,15 @@ namespace MQTest.HostWeb.Controllers
     public class TestController : ControllerBase
     {
         private readonly IMessageProducer messageProducer;
+        private readonly AppSettings config;
 
         /// <summary>
         /// 
         /// </summary>
-        public TestController(IMessageProducer messageProducer)
+        public TestController(IMessageProducer messageProducer, IOptionsMonitor<AppSettings> optionsMonitor)
         {
             this.messageProducer = messageProducer;
+            config = optionsMonitor.CurrentValue;
         }
 
         /// <summary>
@@ -35,6 +38,7 @@ namespace MQTest.HostWeb.Controllers
         public async Task Push()
         {
             Logger.WriteLog(Utility.Constants.LogLevel.Info, "测试MQ消息");
+            //messageProducer.RabbitMQConfig = config.RabbitMQConfig;
             await messageProducer.PublishAsync(new MQOperateCacheMessage { Keys = new string[] { "appcache:auth:uuidauth" } });
         }
     }

@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Utility.Extensions;
+using Utility.MQ.UnitTest;
 
 namespace Utility.RabbitMQ.UnitTest
 {
@@ -22,8 +23,8 @@ namespace Utility.RabbitMQ.UnitTest
 
         private void ConfigServices(IServiceCollection services)
         {
-            services.Configure<RabbitMQConfig>(Configuration); //自定义配置配置
-            services.AddMQOperateCache();
+            services.Configure<AppSettings>(Configuration); //自定义配置配置
+            services.AddMQService();
             services.AddMemoryCache();
             services.AddHttpClient();
         }

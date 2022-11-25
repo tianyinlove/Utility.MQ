@@ -3,6 +3,7 @@ using Utility.Dependency;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using Utility.RabbitMQ.Attributes;
+using Microsoft.Extensions.Configuration;
 
 namespace Utility.RabbitMQ
 {
@@ -25,6 +26,11 @@ namespace Utility.RabbitMQ
         /// <summary>
         /// 
         /// </summary>
+        public string RabbitMQConfig { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="message"></param>
         /// <param name="options"></param>
@@ -40,15 +46,31 @@ namespace Utility.RabbitMQ
             var routingKey = keyAttribute.RouteKey;
             string appId = keyAttribute.AppId;
 
-            options ??= new();
-            if (string.IsNullOrWhiteSpace(options.TraceId))
+            using (var scope = _scopeFactory.CreateScope())
             {
-                options.TraceId = $"00-{Guid.NewGuid():n}-{Guid.NewGuid().ToString("n")[..16]}-01";
-            }
+                if (string.IsNullOrEmpty(RabbitMQConfig))
+                {
+                    if (string.IsNullOrEmpty(keyAttribute.ConfigName))
+                    {
+                        throw new ArgumentNullException($"无法识别MQ名，请通过{nameof(RabbitMQAttribute)}标注或赋值RabbitMQConfig");
+                    }
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    RabbitMQConfig = configuration.GetSection(keyAttribute.ConfigName).Value;
+                    if (string.IsNullOrEmpty(RabbitMQConfig))
+                    {
+                        throw new ArgumentNullException($"{keyAttribute.ConfigName}未配置，请配置appsettings.json或赋值RabbitMQConfig");
+                    }
+                }
+                options ??= new PublishOptions();
+                if (string.IsNullOrWhiteSpace(options.TraceId))
+                {
+                    options.TraceId = $"00-{Guid.NewGuid():n}-{Guid.NewGuid().ToString("n")[..16]}-01";
+                }
 
-            using var scope = _scopeFactory.CreateScope();
-            var rawAgent = scope.ServiceProvider.GetRequiredService<IRawProducer>();
-            await rawAgent.PublishAsync<TMessage>(appId, routingKey, message, options);
+                var rawAgent = scope.ServiceProvider.GetRequiredService<IRawProducer>();
+                rawAgent.RabbitMQConfig = RabbitMQConfig;
+                await rawAgent.PublishAsync<TMessage>(appId, routingKey, message, options);
+            }
         }
     }
 }

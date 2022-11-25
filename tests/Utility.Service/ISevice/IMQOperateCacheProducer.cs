@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
+using Utility.RabbitMQ.Cache;
 
-namespace Utility.RabbitMQ.Cache
+namespace Utility.Core.ISevice
 {
     /// <summary>
     /// MQ操作缓存

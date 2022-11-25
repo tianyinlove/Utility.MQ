@@ -31,7 +31,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Utility.RabbitMQ" Version="1.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
@@ -47,5 +46,10 @@
 
 	<ItemGroup>
 		<Folder Include="DataAccess\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Utility.RabbitMQ\Utility.RabbitMQ.csproj" />
+	  <ProjectReference Include="..\Utility.Service\Utility.Core.csproj" />
 	</ItemGroup>
 </Project>

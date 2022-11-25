@@ -28,8 +28,9 @@ namespace MQTest.HostWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddMQOperateCache();
-            services.Configure<RabbitMQConfig>(Configuration); //自定义配置配置
+            services.AddMemoryCache();
+            services.AddMQService();
+            services.Configure<AppSettings>(Configuration); //自定义配置配置
             services.AddControllers();
         }
 

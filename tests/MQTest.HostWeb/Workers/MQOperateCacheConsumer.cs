@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using Utility.RabbitMQ;
 using Utility.RabbitMQ.Cache;
@@ -12,13 +13,15 @@ namespace MQTest.HostWeb.Workers
     class MQOperateCacheConsumer : MessageConsumer<MQOperateCacheMessage>
     {
         private readonly IMemoryCache memoryCache;
+        private readonly AppSettings _config;
 
         /// <summary>
         /// 
         /// </summary>
-        public MQOperateCacheConsumer(IMemoryCache memoryCache)
+        public MQOperateCacheConsumer(IMemoryCache memoryCache, IOptionsMonitor<AppSettings> optionsMonitor)
         {
             this.memoryCache = memoryCache;
+            _config = optionsMonitor.CurrentValue;
         }
 
         /// <summary>
@@ -30,6 +33,10 @@ namespace MQTest.HostWeb.Workers
         /// </summary>
         public override string ConsumerAppId => "MQTest";
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public override string RabbitMQConfig => _config.CacheRabbitMQConfig;
         /// <summary>
         /// 
         /// </summary>

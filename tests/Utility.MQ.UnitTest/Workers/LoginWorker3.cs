@@ -1,19 +1,24 @@
 ﻿using Utility.RabbitMQ.UnitTest.Models;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using Utility.Core.Common;
 
 namespace Utility.RabbitMQ.UnitTest.Workers
 {
     class LoginWorker3 : MessageConsumer<LoginMessage>
     {
-        public LoginWorker3()
+        private readonly AppSettings config;
+
+        public LoginWorker3(IOptionsMonitor<AppSettings> optionsMonitor)
         {
+            config = optionsMonitor.CurrentValue;
         }
 
         public override string ConsumerName => "emtest3";
 
         public override string ConsumerAppId => "Emapp";
-
+        public override string RabbitMQConfig => config.CacheRabbitMQConfig;
         public override int MaxRetry => 10;
 
         public override int GetRetryDelay(int failCount, MessageContext context)
