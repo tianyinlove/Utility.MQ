@@ -11,26 +11,30 @@ namespace MQTest.HostWeb.Workers
     /// <summary>
     /// 缓存操作消费者
     /// </summary>
-    class AuthUpdateConsumer : MessageConsumer<AuthUpdateMessage>
+    class DelCacheConsumer : MessageConsumer<DelCacheMessage>
     {
-        private readonly ITestService testService;
+        private readonly IMemoryCache memoryCache;
 
         /// <summary>
         /// 
         /// </summary>
-        public AuthUpdateConsumer(ITestService testService)
+        public DelCacheConsumer(IMemoryCache memoryCache)
         {
-            this.testService = testService;
+            this.memoryCache = memoryCache;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public override string ConsumerName => "authtest";
+        public override string ConsumerName => "memorytest";
         /// <summary>
         /// 
         /// </summary>
         public override string ConsumerAppId => "MQTest";
+        /// <summary>
+        /// 
+        /// </summary>
+        public override bool AutoDelete => true;
 
         /// <summary>
         /// 
@@ -38,11 +42,14 @@ namespace MQTest.HostWeb.Workers
         /// <param name="message"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public override async Task<bool> ExecuteAsync(AuthUpdateMessage message, MessageContext context)
+        public override async Task<bool> ExecuteAsync(DelCacheMessage message, MessageContext context)
         {
-            if (!string.IsNullOrEmpty(message.UserName))
+            if (message.Keys != null)
             {
-                await testService.AuthUpdate(message.UserName);
+                foreach (var key in message.Keys)
+                {
+                    memoryCache.Remove(key);
+                }
             }
             return await Task.FromResult(true);
         }

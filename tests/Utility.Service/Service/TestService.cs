@@ -4,10 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Utility.Core.Common;
 using Utility.Core.Data;
 using Utility.Core.IData;
 using Utility.Core.ISevice;
+using Utility.Core.Model;
 using Utility.RabbitMQ;
 using Utility.Redis;
 

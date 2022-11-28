@@ -9,7 +9,7 @@ using System.Text;
 using Utility.RabbitMQ.Attributes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Utility.NetLog;
+using System.Net.NetworkInformation;
 
 namespace Utility.RabbitMQ;
 
@@ -63,6 +63,11 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
     public string QueueName { get; set; }
 
     /// <summary>
+    /// 
+    /// </summary>
+    public bool AutoDelete { get; set; }
+
+    /// <summary>
     /// ioc
     /// </summary>
     public MessageConsumerService(IServiceScopeFactory scopeFactory)
@@ -101,26 +106,68 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
         var settings = scope.ServiceProvider.GetRequiredService(ConsumerType) as IMessageConsumer;
 
         RabbitMQConfig = settings.RabbitMQConfig;
+        AutoDelete = settings.AutoDelete;
 
         if (string.IsNullOrEmpty(RabbitMQConfig))
         {
-            if (string.IsNullOrEmpty(keyAttribute.MQName))
+            if (string.IsNullOrEmpty(keyAttribute.MqName))
             {
                 throw new ArgumentNullException($"无法识别MQ名，请通过{nameof(RabbitMQAttribute)}标注或赋值RabbitMQConfig");
             }
             var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-            RabbitMQConfig = configuration.GetSection(keyAttribute.MQName).Value;
+            RabbitMQConfig = configuration.GetSection(keyAttribute.MqName).Value;
             if (string.IsNullOrEmpty(RabbitMQConfig))
             {
-                throw new ArgumentNullException($"{keyAttribute.MQName}未配置，请配置appsettings.json或赋值RabbitMQConfig");
+                throw new ArgumentNullException($"{keyAttribute.MqName}未配置，请配置appsettings.json或赋值RabbitMQConfig");
             }
         }
 
         QueueName = settings.ConsumerAppId == ProducerAppId
             ? $"{settings.ConsumerName}.{RoutingKey}"
             : $"{settings.ConsumerAppId.ToString().ToLower()}.{settings.ConsumerName}.{RoutingKey}";
+
+        if (AutoDelete)
+        {
+            QueueName += $".{GetMac().Md5()}";
+        }
+
         PrefetchCount = settings.PrefetchCount;
         PrefetchSize = settings.PrefetchSize;
+        AutoDelete = settings.AutoDelete;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    string GetMac()
+    {
+        try
+        {
+            List<string> macs = new List<string>();
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface ni in interfaces)
+            {
+                if (ni.NetworkInterfaceType != NetworkInterfaceType.Ethernet)
+                {
+                    continue;
+                }
+                if (ni.GetPhysicalAddress().ToString() != "")
+                {
+                    macs.Add(ni.GetPhysicalAddress().ToString());
+                }
+            }
+
+            //替补mac地址，当找不到以太网mac，则使用第一个mac
+            var subs = macs.Count == 0 && interfaces.Length > 0
+                ? interfaces[0].GetPhysicalAddress().ToString()
+                : string.Empty;
+            return macs.Count > 0 ? macs[0] : subs;
+        }
+        catch (Exception)
+        {
+        }
+        return string.Empty;
     }
 
     #endregion
@@ -138,50 +185,43 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
             stoppingToken.ThrowIfCancellationRequested();
             await Task.Delay(5000);
 
-            try
+            var factory = RabbitMQConfig.FromJson<ConnectionFactory>();
+            using var connection = factory.CreateConnection();
+            using var channel = connection.CreateModel();
+
+            channel.BasicQos(prefetchSize: PrefetchSize, prefetchCount: PrefetchCount, global: false); // 限流                    
+            channel.ExchangeDeclare(exchange: ExchangeNames.MainExchange, type: ExchangeType.Direct, durable: true, autoDelete: AutoDelete); // 确认exchange
+
+            // 队列
+            channel.QueueDeclare(queue: QueueName, durable: true, exclusive: false, autoDelete: AutoDelete, arguments: null);
+            channel.QueueBind(queue: QueueName, exchange: ExchangeNames.MainExchange, routingKey: RoutingKey); // 路由，监听普通路由                
+            channel.QueueBind(queue: QueueName, exchange: ExchangeNames.MainExchange, routingKey: QueueName); // 路由，监听重试路由
+
+            // 消费
+            var consumer = new EventingBasicConsumer(channel);
+            consumer.Received += ConsumerReceived;
+            channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
+
+            // 定期检查配置更新,如果配置修改了就断开重连
+            while (true)
             {
-                var factory = RabbitMQConfig.FromJson<ConnectionFactory>();
-                using var connection = factory.CreateConnection();
-                using var channel = connection.CreateModel();
-
-                channel.BasicQos(prefetchSize: PrefetchSize, prefetchCount: PrefetchCount, global: false); // 限流                    
-                channel.ExchangeDeclare(exchange: ExchangeNames.MainExchange, type: ExchangeType.Direct, durable: true); // 确认exchange
-
-                // 队列
-                channel.QueueDeclare(queue: QueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
-                channel.QueueBind(queue: QueueName, exchange: ExchangeNames.MainExchange, routingKey: RoutingKey); // 路由，监听普通路由                
-                channel.QueueBind(queue: QueueName, exchange: ExchangeNames.MainExchange, routingKey: QueueName); // 路由，监听重试路由
-
-                // 消费
-                var consumer = new EventingBasicConsumer(channel);
-                consumer.Received += ConsumerReceived;
-                channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
-
-                // 定期检查配置更新,如果配置修改了就断开重连
-                while (true)
+                await Task.Delay(15000);
+                if (stoppingToken.IsCancellationRequested)
                 {
-                    await Task.Delay(15000);
-                    if (stoppingToken.IsCancellationRequested)
-                    {
-                        channel.Close();
-                        break;
-                    }
-                    var cfg = RabbitMQConfig.FromJson<ConnectionFactory>();
-                    if (factory.HostName != cfg.HostName
-                        || factory.Port != cfg.Port
-                        || factory.UserName != cfg.UserName
-                        || factory.Password != cfg.Password
-                        || factory.VirtualHost != cfg.VirtualHost)
-                    {
-                        await Task.Delay(15000); // 断开重连前尽量消费老服务器的数据                            
-                        channel.Close();
-                        break;
-                    }
+                    channel.Close();
+                    break;
                 }
-            }
-            catch (Exception err)
-            {
-                Logger.WriteLog(Utility.Constants.LogLevel.Error, "处理mq消息异常", err);
+                var cfg = RabbitMQConfig.FromJson<ConnectionFactory>();
+                if (factory.HostName != cfg.HostName
+                    || factory.Port != cfg.Port
+                    || factory.UserName != cfg.UserName
+                    || factory.Password != cfg.Password
+                    || factory.VirtualHost != cfg.VirtualHost)
+                {
+                    await Task.Delay(15000); // 断开重连前尽量消费老服务器的数据                            
+                    channel.Close();
+                    break;
+                }
             }
         }
     }
@@ -230,7 +270,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
         }
         catch (Exception err)
         {
-            Logger.WriteLog(Utility.Constants.LogLevel.Error, "MQ消息 上下文解析异常", err);
+            //Logger.WriteLog(Utility.Constants.LogLevel.Error, "MQ消息 上下文解析异常", err);
         }
 
         var channel = ((EventingBasicConsumer)sender).Model;
@@ -245,7 +285,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
                 case ExecuteResultCode.Retry:
                     if (result.Delay > 0)
                     {
-                        DeclareDelayQueue(result.Delay, channel);
+                        DeclareDelayQueue(result.Delay, channel, AutoDelete);
 
                         // 转到延迟重试队列
                         IBasicProperties messageProp = CreateBasicProperties(context, channel);
@@ -261,7 +301,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
                     break;
                 case ExecuteResultCode.Fail:
                     {
-                        DeclareQueue(channel, QueueNames.FailedQueue);
+                        DeclareQueue(channel, QueueNames.FailedQueue, AutoDelete);
 
                         // 转到失败队列
                         IBasicProperties messageProp = CreateBasicProperties(context, channel);
@@ -271,7 +311,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
                     break;
                 case ExecuteResultCode.BadBody:
                     {
-                        DeclareQueue(channel, QueueNames.WrongQueue);
+                        DeclareQueue(channel, QueueNames.WrongQueue, AutoDelete);
 
                         // 消息内容和格式错误
                         IBasicProperties messageProp = CreateBasicProperties(context, channel);
@@ -287,12 +327,18 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
         }
         catch (Exception err) // mq连接异常？
         {
-            Logger.WriteLog(Utility.Constants.LogLevel.Error, "MQ消息 处理异常", err);
+            //Logger.WriteLog(Utility.Constants.LogLevel.Error, "MQ消息 处理异常", err);
             await Task.Delay(1000);
             channel.BasicReject(eventArgs.DeliveryTag, requeue: true);
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="channel"></param>
+    /// <returns></returns>
     private static IBasicProperties CreateBasicProperties(MessageContext context, IModel channel)
     {
         var messageProp = channel.CreateBasicProperties();
@@ -305,19 +351,32 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
         return messageProp;
     }
 
-    private static void DeclareQueue(IModel channel, string queueName)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="channel"></param>
+    /// <param name="queueName"></param>
+    /// <param name="autoDelete"></param>
+    private static void DeclareQueue(IModel channel, string queueName, bool autoDelete)
     {
         if (__lastCheckTimes.TryGetValue(queueName, out var time) && time > DateTime.Now.AddMinutes(-1))
         {
             return;
         }
-        channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false);
+        channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: autoDelete);
         channel.QueueBind(queue: queueName, exchange: ExchangeNames.MainExchange, queueName);
         __lastCheckTimes[queueName] = DateTime.Now;
     }
 
     static ConcurrentDictionary<string, DateTime> __lastCheckTimes = new ConcurrentDictionary<string, DateTime>();
-    private static void DeclareDelayQueue(int delay, IModel channel)
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="delay"></param>
+    /// <param name="channel"></param>
+    /// <param name="autoDelete"></param>
+    private static void DeclareDelayQueue(int delay, IModel channel, bool autoDelete)
     {
         if (__lastCheckTimes.TryGetValue(delay.ToString(), out var time) && time > DateTime.Now.AddMinutes(-1))
         {
@@ -329,7 +388,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
             ["x-dead-letter-exchange"] = ExchangeNames.MainExchange,
             ["x-message-ttl"] = delay,
         };
-        channel.QueueDeclare(queue: retryQueueName, durable: true, exclusive: false, autoDelete: false, queueArgs);
+        channel.QueueDeclare(queue: retryQueueName, durable: true, exclusive: false, autoDelete: autoDelete, queueArgs);
 
         var bindHeaders = new Dictionary<string, object>
         {

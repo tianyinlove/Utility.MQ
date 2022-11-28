@@ -35,6 +35,7 @@ namespace Utility.Extensions
             services.TryAddTransient<IRawProducer, RawProducer>();
             return services;
         }
+
         /// <summary>
         /// 添加MQ服务客户端
         /// </summary>
@@ -93,17 +94,26 @@ namespace Utility.Extensions
         /// <returns></returns>
         private static ServiceLifetime GetServiceLife(this Type type)
         {
+            var result = ServiceLifetime.Transient;
             if (type.GetCustomAttribute<ServiceLifeAttribute>() is ServiceLifeAttribute attr)
             {
-                return attr.Mode switch
+                switch (attr.Mode)
                 {
-                    ServiceLifeMode.Transient => ServiceLifetime.Transient,
-                    ServiceLifeMode.Singleton => ServiceLifetime.Singleton,
-                    ServiceLifeMode.Scoped => ServiceLifetime.Scoped,
-                    _ => ServiceLifetime.Transient,
-                };
+                    case ServiceLifeMode.Transient:
+                        result = ServiceLifetime.Transient;
+                        break;
+                    case ServiceLifeMode.Singleton:
+                        result = ServiceLifetime.Singleton;
+                        break;
+                    case ServiceLifeMode.Scoped:
+                        result = ServiceLifetime.Scoped;
+                        break;
+                    default:
+                        result = ServiceLifetime.Transient;
+                        break;
+                }
             }
-            return ServiceLifetime.Transient;
+            return result;
         }
 
     }

@@ -50,15 +50,15 @@ namespace Utility.RabbitMQ
             {
                 if (string.IsNullOrEmpty(RabbitMQConfig))
                 {
-                    if (string.IsNullOrEmpty(keyAttribute.MQName))
+                    if (string.IsNullOrEmpty(keyAttribute.MqName))
                     {
                         throw new ArgumentNullException($"无法识别MQName，请通过{nameof(RabbitMQAttribute)}标注或赋值RabbitMQConfig");
                     }
                     var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-                    RabbitMQConfig = configuration.GetSection(keyAttribute.MQName).Value;
+                    RabbitMQConfig = configuration.GetSection(keyAttribute.MqName).Value;
                     if (string.IsNullOrEmpty(RabbitMQConfig))
                     {
-                        throw new ArgumentNullException($"{keyAttribute.MQName}未配置，请配置appsettings.json或赋值RabbitMQConfig");
+                        throw new ArgumentNullException($"{keyAttribute.MqName}未配置，请配置appsettings.json或赋值RabbitMQConfig");
                     }
                 }
                 options ??= new PublishOptions();

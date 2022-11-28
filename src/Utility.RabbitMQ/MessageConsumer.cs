@@ -1,7 +1,6 @@
 ﻿using Utility.RabbitMQ.Constants;
 using Utility.Extensions;
 using System.Text;
-using Utility.NetLog;
 
 namespace Utility.RabbitMQ
 {
@@ -46,6 +45,11 @@ namespace Utility.RabbitMQ
         public virtual int MaxLocalRetry { get; } = 1;
 
         /// <summary>
+        /// 
+        /// </summary>
+        public virtual bool AutoDelete { get; set; } = false;
+
+        /// <summary>
         /// 队列重试的延迟时间(ms)
         /// </summary>
         public virtual int GetRetryDelay(int failCount, MessageContext context)
@@ -85,11 +89,11 @@ namespace Utility.RabbitMQ
             }
             catch (Exception err)
             {
-                Logger.WriteLog(Utility.Constants.LogLevel.Error, "MQ消息 内容读取异常", err);
+                //Logger.WriteLog(Utility.Constants.LogLevel.Error, "MQ消息 内容读取异常", err);
                 return new ExecuteResult { ResultCode = ExecuteResultCode.BadBody, ErrorMessage = err.Message };
             }
 
-            Logger.WriteLog(Utility.Constants.LogLevel.Warning, $"MQ消息 收到消息,queue:{context.QueueName},json:{messageJson}");
+            //Logger.WriteLog(Utility.Constants.LogLevel.Warning, $"MQ消息 收到消息,queue:{context.QueueName},json:{messageJson}");
             var maxRetry = Math.Max(1, MaxLocalRetry);
             if (context.RoutingKey == context.QueueName) // 处理重试队列
             {
@@ -111,7 +115,7 @@ namespace Utility.RabbitMQ
                 }
                 catch (Exception err)
                 {
-                    Logger.WriteLog(Utility.Constants.LogLevel.Error, $"消费MQ消息异常", err);
+                    //Logger.WriteLog(Utility.Constants.LogLevel.Error, $"消费MQ消息异常", err);
                 }
                 context.LocalFailCount++;
             }

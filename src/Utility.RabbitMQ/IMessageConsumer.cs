@@ -51,6 +51,11 @@ namespace Utility.RabbitMQ
         ushort PrefetchSize { get; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        bool AutoDelete { get; set; }
+
+        /// <summary>
         /// 处理mq消息
         /// </summary>
         /// <param name="body"></param>

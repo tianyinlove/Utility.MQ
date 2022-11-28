@@ -49,11 +49,21 @@ namespace MQTest.HostWeb.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task UpdateAuth()
+        public async Task Del()
+        {
+            await messageProducer.PublishAsync(new DelCacheMessage { Keys = new List<string> { "appcache:auth:uuidauth" } });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task UpdateAuth(string name = "测试用户")
         {
             Logger.WriteLog(Utility.Constants.LogLevel.Info, "测试MQ消息");
             messageProducer.RabbitMQConfig = config.RabbitMQConfig;
-            await messageProducer.PublishAsync(new AuthUpdateMessage { UserName = "测试用户" });
+            await messageProducer.PublishAsync(new AuthUpdateMessage { UserName = name });
         }
     }
 }
