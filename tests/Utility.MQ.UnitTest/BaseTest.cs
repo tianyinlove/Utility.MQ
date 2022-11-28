@@ -1,13 +1,11 @@
-﻿//using Utility.RabbitMQ.UnitTest.DataAccess.EfTest;
-using Utility.RabbitMQ.UnitTest.Workers;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using Utility.Extensions;
-using Utility.MQ.UnitTest;
+using Utility.Core.Common;
 
 namespace Utility.RabbitMQ.UnitTest
 {
@@ -25,8 +23,6 @@ namespace Utility.RabbitMQ.UnitTest
         {
             services.Configure<AppSettings>(Configuration); //自定义配置配置
             services.AddMQService();
-            services.AddMemoryCache();
-            services.AddHttpClient();
         }
 
 

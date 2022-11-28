@@ -1,5 +1,4 @@
 ﻿using Utility.RabbitMQ.Constants;
-using Microsoft.Extensions.Logging;
 
 namespace Utility.RabbitMQ
 {
@@ -56,8 +55,7 @@ namespace Utility.RabbitMQ
         /// </summary>
         /// <param name="body"></param>
         /// <param name="context"></param>
-        /// <param name="logger"></param>
         /// <returns></returns>
-        Task<ExecuteResult> ExecuteMessageAsync(byte[] body, MessageContext context, ILogger logger);
+        Task<ExecuteResult> ExecuteMessageAsync(byte[] body, MessageContext context);
     }
 }

@@ -9,5 +9,15 @@
         /// 
         /// </summary>
         public string CacheRabbitMQConfig { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string RabbitMQConfig { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string emappservice { get; set; }
     }
 }

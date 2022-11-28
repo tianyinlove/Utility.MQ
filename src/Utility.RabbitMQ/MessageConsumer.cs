@@ -1,7 +1,7 @@
 ﻿using Utility.RabbitMQ.Constants;
 using Utility.Extensions;
-using Microsoft.Extensions.Logging;
 using System.Text;
+using Utility.NetLog;
 
 namespace Utility.RabbitMQ
 {
@@ -72,9 +72,8 @@ namespace Utility.RabbitMQ
         /// </summary>
         /// <param name="body"></param>
         /// <param name="context"></param>
-        /// <param name="logger"></param>
         /// <returns></returns>
-        public async Task<ExecuteResult> ExecuteMessageAsync(byte[] body, MessageContext context, ILogger logger)
+        public async Task<ExecuteResult> ExecuteMessageAsync(byte[] body, MessageContext context)
         {
             TMessage message;
             string messageJson;
@@ -86,11 +85,11 @@ namespace Utility.RabbitMQ
             }
             catch (Exception err)
             {
-                logger.LogWarning(err, "MQ消息 内容读取异常");
+                Logger.WriteLog(Utility.Constants.LogLevel.Error, "MQ消息 内容读取异常", err);
                 return new ExecuteResult { ResultCode = ExecuteResultCode.BadBody, ErrorMessage = err.Message };
             }
 
-            logger.LogInformation($"MQ消息 收到消息,queue:{context.QueueName},json:{messageJson}");
+            Logger.WriteLog(Utility.Constants.LogLevel.Warning, $"MQ消息 收到消息,queue:{context.QueueName},json:{messageJson}");
             var maxRetry = Math.Max(1, MaxLocalRetry);
             if (context.RoutingKey == context.QueueName) // 处理重试队列
             {
@@ -112,7 +111,7 @@ namespace Utility.RabbitMQ
                 }
                 catch (Exception err)
                 {
-                    logger.LogError(err, $"消费MQ消息异常");
+                    Logger.WriteLog(Utility.Constants.LogLevel.Error, $"消费MQ消息异常", err);
                 }
                 context.LocalFailCount++;
             }

@@ -12,7 +12,7 @@ namespace Utility.RabbitMQ.Attributes
         /// <summary>
         /// MQ配置名GetSection获取
         /// </summary>
-        public string ConfigName { get; set; }
+        public string MQName { get; set; }
 
         /// <summary>
         /// 生产者应用id
@@ -29,12 +29,12 @@ namespace Utility.RabbitMQ.Attributes
         /// </summary>
         /// <param name="appId"></param>
         /// <param name="routingKey"></param>
-        /// <param name="configName">MQ配置名GetSection获取</param>
-        public RabbitMQAttribute(string appId, string routingKey, string configName = "")
+        /// <param name="mqName">MQ配置名GetSection获取</param>
+        public RabbitMQAttribute(string appId, string routingKey, string mqName = "")
         {
             AppId = appId;
             RouteKey = routingKey;
-            ConfigName = ConfigName;
+            MQName = mqName;
         }
     }
 }

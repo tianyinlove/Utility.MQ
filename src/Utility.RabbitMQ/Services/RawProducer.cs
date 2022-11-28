@@ -1,10 +1,9 @@
 ﻿using Utility.RabbitMQ.Constants;
 using Utility.RabbitMQ.Internal;
 using Utility.Extensions;
-using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using System.Text;
-using Microsoft.Extensions.Options;
+using Utility.NetLog;
 
 namespace Utility.RabbitMQ.Services
 {
@@ -13,14 +12,11 @@ namespace Utility.RabbitMQ.Services
     /// </summary>
     class RawProducer : IRawProducer
     {
-        private readonly ILogger<RawProducer> _logger;
-
         /// <summary>
         /// ioc
         /// </summary>
-        public RawProducer(ILogger<RawProducer> logger)
+        public RawProducer()
         {
-            _logger = logger;
         }
 
         /// <summary>
@@ -58,14 +54,14 @@ namespace Utility.RabbitMQ.Services
                             var body = Encoding.UTF8.GetBytes(json);
 
                             channelWrapper.Channel.BasicPublish(exchange: ExchangeNames.MainExchange, routingKey: routingKey, basicProperties: properties, body: body);
-                            _logger.LogInformation($"MQ消息 发送成功,routingKey:{routingKey},body:{json}");
+                            Logger.WriteLog(Utility.Constants.LogLevel.Warning, $"MQ消息 发送成功,routingKey:{routingKey},body:{json}");
                             return;
                         }
                     }
                 }
                 catch (Exception err)
                 {
-                    _logger.LogError(err, $"MQ消息 发送失败,重试次数{tryCount}");
+                    Logger.WriteLog(Utility.Constants.LogLevel.Error, $"MQ消息 发送失败,重试次数{tryCount}", err);
                 }
                 if (tryCount == options.MaxRetryCount)
                 {

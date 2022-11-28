@@ -9,7 +9,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using Utility.Core.Common;
 using Utility.Extensions;
 using Utility.RabbitMQ;
 
@@ -27,6 +29,7 @@ namespace MQTest.HostWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddUtilityTestService();
             services.AddHttpContextAccessor();
             services.AddMemoryCache();
             services.AddMQService();

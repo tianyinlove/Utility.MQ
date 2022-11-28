@@ -20,7 +20,7 @@ namespace Utility.RabbitMQ.UnitTest.Workers
 
         public override string ConsumerAppId => "Emapp";
 
-        public override string RabbitMQConfig => config.CacheRabbitMQConfig;
+        public override string RabbitMQConfig => config.RabbitMQConfig;
 
         public override Task<bool> ExecuteAsync(LoginMessage message, MessageContext context)
         {

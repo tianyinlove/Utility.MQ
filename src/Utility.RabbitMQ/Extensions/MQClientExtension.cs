@@ -1,13 +1,10 @@
 ﻿using Utility.RabbitMQ.Services;
 using Utility.Dependency;
-using Microsoft.Extensions.Configuration;
+using System.Reflection;
+using Utility.RabbitMQ;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using System.Reflection;
-using Microsoft.Extensions.DependencyModel;
-using Utility.RabbitMQ;
-using Utility.RabbitMQ.Cache;
 
 namespace Utility.Extensions
 {

@@ -50,21 +50,21 @@ namespace Utility.RabbitMQ
             {
                 if (string.IsNullOrEmpty(RabbitMQConfig))
                 {
-                    if (string.IsNullOrEmpty(keyAttribute.ConfigName))
+                    if (string.IsNullOrEmpty(keyAttribute.MQName))
                     {
-                        throw new ArgumentNullException($"无法识别MQ名，请通过{nameof(RabbitMQAttribute)}标注或赋值RabbitMQConfig");
+                        throw new ArgumentNullException($"无法识别MQName，请通过{nameof(RabbitMQAttribute)}标注或赋值RabbitMQConfig");
                     }
                     var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-                    RabbitMQConfig = configuration.GetSection(keyAttribute.ConfigName).Value;
+                    RabbitMQConfig = configuration.GetSection(keyAttribute.MQName).Value;
                     if (string.IsNullOrEmpty(RabbitMQConfig))
                     {
-                        throw new ArgumentNullException($"{keyAttribute.ConfigName}未配置，请配置appsettings.json或赋值RabbitMQConfig");
+                        throw new ArgumentNullException($"{keyAttribute.MQName}未配置，请配置appsettings.json或赋值RabbitMQConfig");
                     }
                 }
                 options ??= new PublishOptions();
                 if (string.IsNullOrWhiteSpace(options.TraceId))
                 {
-                    options.TraceId = $"00-{Guid.NewGuid():n}-{Guid.NewGuid().ToString("n")[..16]}-01";
+                    options.TraceId = $"00-{Guid.NewGuid():n}-{Guid.NewGuid().ToString("n")[16]}-01";
                 }
 
                 var rawAgent = scope.ServiceProvider.GetRequiredService<IRawProducer>();

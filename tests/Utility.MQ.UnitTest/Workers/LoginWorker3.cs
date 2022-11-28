@@ -18,7 +18,7 @@ namespace Utility.RabbitMQ.UnitTest.Workers
         public override string ConsumerName => "emtest3";
 
         public override string ConsumerAppId => "Emapp";
-        public override string RabbitMQConfig => config.CacheRabbitMQConfig;
+        public override string RabbitMQConfig => config.RabbitMQConfig;
         public override int MaxRetry => 10;
 
         public override int GetRetryDelay(int failCount, MessageContext context)

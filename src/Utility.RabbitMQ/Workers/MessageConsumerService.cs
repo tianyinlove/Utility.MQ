@@ -1,16 +1,15 @@
 ﻿using Utility.RabbitMQ.Constants;
 using Utility.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
 using Utility.RabbitMQ.Attributes;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Utility.NetLog;
 
 namespace Utility.RabbitMQ;
 
@@ -22,7 +21,6 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
     #region 变量和ioc
 
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ILogger<MessageConsumerService<TComsumer>> _logger;
 
     /// <summary>
     /// MQ配置，Json格式
@@ -67,10 +65,9 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
     /// <summary>
     /// ioc
     /// </summary>
-    public MessageConsumerService(IServiceScopeFactory scopeFactory, ILogger<MessageConsumerService<TComsumer>> logger)
+    public MessageConsumerService(IServiceScopeFactory scopeFactory)
     {
         _scopeFactory = scopeFactory;
-        _logger = logger;
         ParseSettings();
     }
 
@@ -107,15 +104,15 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
 
         if (string.IsNullOrEmpty(RabbitMQConfig))
         {
-            if (string.IsNullOrEmpty(keyAttribute.ConfigName))
+            if (string.IsNullOrEmpty(keyAttribute.MQName))
             {
                 throw new ArgumentNullException($"无法识别MQ名，请通过{nameof(RabbitMQAttribute)}标注或赋值RabbitMQConfig");
             }
             var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-            RabbitMQConfig = configuration.GetSection(keyAttribute.ConfigName).Value;
+            RabbitMQConfig = configuration.GetSection(keyAttribute.MQName).Value;
             if (string.IsNullOrEmpty(RabbitMQConfig))
             {
-                throw new ArgumentNullException($"{keyAttribute.ConfigName}未配置，请配置appsettings.json或赋值RabbitMQConfig");
+                throw new ArgumentNullException($"{keyAttribute.MQName}未配置，请配置appsettings.json或赋值RabbitMQConfig");
             }
         }
 
@@ -184,7 +181,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
             }
             catch (Exception err)
             {
-                _logger.LogWarning(err, "处理mq消息异常");
+                Logger.WriteLog(Utility.Constants.LogLevel.Error, "处理mq消息异常", err);
             }
         }
     }
@@ -219,7 +216,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
                 }
                 else
                 {
-                    context.TraceId = $"00-{Guid.NewGuid():n}-{Guid.NewGuid().ToString("n")[..16]}-01";
+                    context.TraceId = $"00-{Guid.NewGuid():n}-{Guid.NewGuid().ToString("n")[16]}-01";
                 }
                 if (eventArgs.BasicProperties.Headers.TryGetValue(MessageHeaders.FailCount, out object oFailCount))
                 {
@@ -233,7 +230,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
         }
         catch (Exception err)
         {
-            _logger.LogWarning(err, "MQ消息 上下文解析异常");
+            Logger.WriteLog(Utility.Constants.LogLevel.Error, "MQ消息 上下文解析异常", err);
         }
 
         var channel = ((EventingBasicConsumer)sender).Model;
@@ -242,7 +239,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
         {
             using var scope = _scopeFactory.CreateScope();
             var consumer = scope.ServiceProvider.GetRequiredService(ConsumerType) as IMessageConsumer;
-            ExecuteResult result = await consumer.ExecuteMessageAsync(body, context, _logger);
+            ExecuteResult result = await consumer.ExecuteMessageAsync(body, context);
             switch (result.ResultCode)
             {
                 case ExecuteResultCode.Retry:
@@ -290,7 +287,7 @@ internal class MessageConsumerService<TComsumer> : BackgroundService
         }
         catch (Exception err) // mq连接异常？
         {
-            _logger.LogWarning(err, "MQ消息 处理异常");
+            Logger.WriteLog(Utility.Constants.LogLevel.Error, "MQ消息 处理异常", err);
             await Task.Delay(1000);
             channel.BasicReject(eventArgs.DeliveryTag, requeue: true);
         }

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using System;
-using Utility.RabbitMQ.Cache;
 
 namespace Utility.RabbitMQ.UnitTest.Services
 {
@@ -31,18 +30,6 @@ namespace Utility.RabbitMQ.UnitTest.Services
 
             await Task.Delay(5000000);
 
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [Fact]
-        public async Task SingleDelCache()
-        {
-            var host = await StartHostAsync();
-            var agent = host.Services.GetRequiredService<IMessageProducer>();
-            await agent.PublishAsync(new MQOperateCacheMessage { Keys = new string[] { "appcache:auth:uuidauth" } });
         }
     }
 }

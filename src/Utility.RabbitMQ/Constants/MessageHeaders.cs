@@ -8,22 +8,22 @@
         /// <summary>
         /// 失败次数
         /// </summary>
-        public const string FailCount = "CacheMQ-FailCount";
+        public const string FailCount = "Products-MQ-FailCount";
 
         /// <summary>
         /// 原始队列名
         /// </summary>
-        public const string QueueName = "CacheMQ-QueueName";
+        public const string QueueName = "Products-MQ-QueueName";
 
         /// <summary>
         /// 发送时间
         /// </summary>
-        public const string PublishTime = "CacheMQ-PublishTime";
+        public const string PublishTime = "Products-MQ-PublishTime";
 
         /// <summary>
         /// 延迟消息
         /// </summary>
-        public const string Delay = "CacheMQ-Delay";
+        public const string Delay = "Products-MQ-Delay";
 
         /// <summary>
         /// 记录跟踪id，同一个请求过程中所有被调用的webapi接口具有相同的TraceId
