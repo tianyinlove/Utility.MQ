@@ -59,7 +59,7 @@ namespace Utility.Extensions
         /// <param name="services"></param>
         private static void TryAddMQHostedServices(IServiceCollection services)
         {
-            var libraries = DependencyHelper.GetAssemblies();// AppDomain.CurrentDomain.GetAssemblies();
+            var libraries = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in libraries)
             {
                 Type[] types;

@@ -7,13 +7,12 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<Authors>Alex</Authors>
 		<Description>MQ接口客户端公共方法</Description>
-		<Version>1.0.4</Version>
+		<Version>1.0.5</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
 		<PackageReference Include="Utility.Net" Version="1.0.17" />
-		<PackageReference Include="Utility.NetCore" Version="1.0.10" />
 	</ItemGroup>
 </Project>
