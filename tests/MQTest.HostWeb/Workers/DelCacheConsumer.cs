@@ -30,11 +30,7 @@ namespace MQTest.HostWeb.Workers
         /// <summary>
         /// 
         /// </summary>
-        public override string ConsumerAppId => "MQTest";
-        /// <summary>
-        /// 
-        /// </summary>
-        public override bool AutoDelete => true;
+        public override string ConsumerAppId => "utilitytest";
 
         /// <summary>
         /// 

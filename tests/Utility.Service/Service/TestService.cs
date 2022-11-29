@@ -71,7 +71,7 @@ namespace Utility.Core.Service
             if (isUpdate)
             {
                 //清理内存
-
+                await messageProducer.PublishAsync(new DelCacheMessage { Keys = new List<string> { "appcache:auth:uuidauth" } });
             }
             return result;
         }
@@ -85,6 +85,8 @@ namespace Utility.Core.Service
         {
             //更新数据
             await testData.SetAuth(userName);
+
+            await messageProducer.PublishAsync(new DelCacheMessage { Keys = new List<string> { "appcache:auth:uuidauth" } });
 
             return await Task.FromResult(true);
         }

@@ -14,5 +14,6 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
 		<PackageReference Include="Utility.Net" Version="1.0.17" />
+		<PackageReference Include="Utility.NetCore" Version="1.0.10" />
 	</ItemGroup>
 </Project>

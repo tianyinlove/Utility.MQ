@@ -42,7 +42,7 @@ namespace Utility.Core.Data
         /// <returns></returns>
         public async Task<List<string>> GetAuth()
         {
-            var cacheKey = "appcache:auth:uuidauth:data";
+            var cacheKey = "appcache:auth:uuidauth";
             var result = redisClient.Get<List<string>>(cacheKey);
             if (result == null)
             {
@@ -64,7 +64,7 @@ namespace Utility.Core.Data
             if (!string.IsNullOrEmpty(name))
             {
                 data.Add(name);
-                var cacheKey = "appcache:auth:uuidauth:data";
+                var cacheKey = "appcache:auth:uuidauth";
                 result = redisClient.Set(cacheKey, data, TimeSpan.FromDays(30));
             }
             return result;

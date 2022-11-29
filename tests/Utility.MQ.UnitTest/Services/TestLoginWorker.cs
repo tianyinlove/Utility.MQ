@@ -23,13 +23,9 @@ namespace Utility.RabbitMQ.UnitTest.Services
             var tasks = new List<Task>();
             var agent = host.Services.GetRequiredService<IMessageProducer>();
 
-            for (int i = 0; i < 1000; i++)
-            {
-                await agent.PublishAsync<LoginMessage>(new LoginMessage { UserName = "中文 啊实打实😫o((>ω< ))o等等❤😎🌹😃🐱‍👤💖😢😢🤞✔🎂😎✌✌👏🤦‍♂️👌👌😂😁₩㎡￡₠㎝( •̀ ω •́ )✧( •̀ ω •́ )✧<(￣︶￣)↗[GO!](✿◡‿◡)o(*^＠^*)oo(*^＠^*)o(～￣▽￣)～O(∩_∩)O（￣︶￣）↗　aaφ(*￣0￣)ヾ(≧▽≦*)oヾ(≧▽≦*)o😍🐱‍💻🐱‍🐉🤢🎁🤷‍♂️😏🤗😎🙂🥙🌯🥞🥞💤💞☯🕉💗💗💗大大阿萨大大发撒乱码%*&#@！——#&……￥*（@！@！#……@——#！@……#……！" });
-            }
+            await agent.PublishAsync<LoginMessage>(new LoginMessage { UserName = "中文" });
 
-            await Task.Delay(5000000);
-
+            await Task.Delay(60 * 60 * 1000);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Utility.Core.Model
     /// <summary>
     /// 
     /// </summary>
-    [RabbitMQ("MQUtilityTest", "memorycache.operate", "CacheRabbitMQConfig")]
+    [RabbitMQ("utilitymqtest", "memorycache.operate", "CacheRabbitMQConfig")]
     public class DelCacheMessage
     {
         /// <summary>

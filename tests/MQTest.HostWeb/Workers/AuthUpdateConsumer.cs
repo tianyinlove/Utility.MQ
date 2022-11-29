@@ -30,7 +30,7 @@ namespace MQTest.HostWeb.Workers
         /// <summary>
         /// 
         /// </summary>
-        public override string ConsumerAppId => "MQTest";
+        public override string ConsumerAppId => "utilitytest";
 
         /// <summary>
         /// 

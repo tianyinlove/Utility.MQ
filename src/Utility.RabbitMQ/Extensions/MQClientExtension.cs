@@ -5,6 +5,8 @@ using Utility.RabbitMQ;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Utility.RabbitMQ.Attributes;
+using System.Text.RegularExpressions;
 
 namespace Utility.Extensions
 {
@@ -57,7 +59,7 @@ namespace Utility.Extensions
         /// <param name="services"></param>
         private static void TryAddMQHostedServices(IServiceCollection services)
         {
-            var libraries = AppDomain.CurrentDomain.GetAssemblies();
+            var libraries = DependencyHelper.GetAssemblies();// AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in libraries)
             {
                 Type[] types;
@@ -73,7 +75,7 @@ namespace Utility.Extensions
                 {
                     if (type != null && type.IsClass && !type.IsAbstract && type.BaseType != null && type.BaseType.IsGenericType)
                     {
-                        if (type.BaseType.GetGenericTypeDefinition() == typeof(MessageConsumer<>))
+                        if (type.BaseType.GetGenericTypeDefinition() == typeof(MessageConsumer<>) && IsEnabled(type))
                         {
                             var consumerServiceDescriptor = ServiceDescriptor.Describe(type, type, type.GetServiceLife());
                             services.TryAdd(consumerServiceDescriptor);
@@ -85,6 +87,21 @@ namespace Utility.Extensions
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private static bool IsEnabled(Type type)
+        {
+            var options = type.GetCustomAttribute<MQConsumerOptionsAttribute>();
+            if (options != null && !options.IsEnabled)
+            {
+                return false;
+            }
+            return true;
         }
 
         /// <summary>

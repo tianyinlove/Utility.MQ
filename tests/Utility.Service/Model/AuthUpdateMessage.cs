@@ -8,7 +8,7 @@ namespace Utility.Core.Model
     /// <summary>
     /// 
     /// </summary>
-    [RabbitMQ("MQUtilityTest", "authupdate.operate", "RabbitMQConfig")]
+    [RabbitMQ("utilitymqtest", "authupdate.operate", "RabbitMQConfig")]
     public class AuthUpdateMessage
     {
         /// <summary>
